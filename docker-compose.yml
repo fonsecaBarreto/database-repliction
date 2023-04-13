@@ -1,0 +1,47 @@
+version: '3'
+
+networks:
+  postgres-net:
+    name: "postgres-net" 
+
+services:
+
+  db-master:
+    container_name: db-master
+    image: 'postgres:13'
+    env_file:
+      - .env.postgresql
+    volumes:
+      - 'data_1:/var/lib/postgresql/data'
+    ports:
+      - 5434:5432
+    networks:
+      - postgres-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+
+  db-sub:
+    container_name: db-sub
+    image: 'postgres:13'
+    env_file:
+      - .env.postgresql
+    volumes:
+      - 'data_2:/var/lib/postgresql/data'
+    ports:
+      - 5435:5432
+    networks:
+      - postgres-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+  
+volumes:
+  data_1: 
+    name: db-data-1
+  data_2: 
+    name: db-data-2
